@@ -6,7 +6,7 @@
 
 {%- do datasources.append(datasource.type) %}
 grafana_client_datasource_{{ datasource_name }}:
-  grafana3_datasource.present:
+  grafana4_datasource.present:
   - name: {{ datasource.name|default(datasource_name) }}
   - type: {{ datasource.type }}
   - url: http://{{ datasource.host }}:{{ datasource.get('port', 80) }}
@@ -73,7 +73,7 @@ grafana_client_datasource_{{ datasource_name }}:
 {%- if dashboard.datasource is not defined or dashboard.datasource in datasources %}
   {%- if dashboard.get('enabled', True) %}
 grafana_client_dashboard_{{ dashboard_name }}:
-  grafana3_dashboard.present:
+  grafana4_dashboard.present:
   - name: {{ dashboard_name }}
     {%- if dashboard.get('format', 'yaml')|lower == 'json' %}
     {%- import dashboard.template as dashboard_template with context %}
@@ -94,7 +94,7 @@ grafana_client_dashboard_{{ dashboard_name }}:
     {%- endif %}
   {%- else %}
 grafana_client_dashboard_{{ dashboard_name }}:
-  grafana3_dashboard.absent:
+  grafana4_dashboard.absent:
   - name: {{ dashboard_name }}
   {%- endif %}
 {%- endif %}

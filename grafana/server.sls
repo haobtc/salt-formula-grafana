@@ -1,9 +1,26 @@
 {%- from "grafana/map.jinja" import server with context %}
 {%- if server.get('enabled', False) %}
 
+grafana_repos_key:
+  cmd.run:
+    - name: curl https://packagecloud.io/gpg.key | sudo apt-key add -
+
+grafana_repo:
+  file.managed:
+    - name: /etc/apt/sources.list.d/grafana.list
+    - require:
+      - cmd: grafana_repos_key
+    - contents: deb https://packagecloud.io/grafana/stable/debian/ stretch main
+
+grafana_update_repo:
+  cmd.run:
+    - name: apt-get update
+
 grafana_packages:
   pkg.installed:
   - names: {{ server.pkgs }}
+  - require:
+      - file: grafana_repo
 
 /etc/grafana/grafana.ini:
   file.managed:
@@ -41,7 +58,7 @@ grafana_packages:
 grafana_copy_default_dashboards:
   file.recurse:
   - name: {{ server.dashboards.path }}
-  - source: salt://grafana/files/dashboards
+  - source: salt://grafana/files/grafana_dashboards
   - user: grafana
   - group: grafana
   - require:
